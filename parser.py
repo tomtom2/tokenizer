@@ -40,19 +40,23 @@ def initialTextToList(file_path):
     return listeDepeches
 
 
-def get_Id_Topic(depeche):
+def get_Id(depeche):
+    regex = r'<doc id="(.+)"(.+)>'
+    m = re.match(regex, depeche)
+    return m.group(1)
+def get_Topic(depeche):
     regex = r'<doc id="(.+)" topic="(.+)">'
     m = re.match(regex, depeche)
-    return [m.group(1), m.group(2)]
+    if m:
+        return m.group(2)
+    return "?"
 
 
 class Depeche(object):
     def __init__(self, depeche):
         self.occurences_dict = getLemmeDico()
-        idAndTopic = get_Id_Topic(depeche)
-        self.id = idAndTopic[0]
-        print self.id
-        self.topic = idAndTopic[1].replace(',', '').replace(' ', '_')
+        self.id = get_Id(depeche)
+        self.topic = get_Topic(depeche).replace(',', '').replace(' ', '_')
         text = ""
         try:
             depeche = str(depeche)
@@ -80,3 +84,5 @@ if __name__=='__main__':
         dep = Depeche(d)
         topic = dep.topic
         id = dep.id
+    print get_Topic('<doc id="id" topic="coucou">')
+    print get_Topic('<doc id="id">')
