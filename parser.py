@@ -13,6 +13,8 @@ def buildDicoWordLemme():
         line = line.split(" ")
         my_lemme_dico[line[0]] = line[3].replace('\n', '')
     my_file.close()
+    while '|' in my_lemme_dico:
+        del my_lemme_dico['|']
     return my_lemme_dico
 
 def getLemmeDico():
@@ -22,6 +24,8 @@ def getLemmeDico():
         line = line.split(" ")
         my_lemme_dico[line[3].replace('\n', '')] = 0
     my_file.close()
+    while '|' in my_lemme_dico:
+        del my_lemme_dico['|']
     return my_lemme_dico
 
 
@@ -41,7 +45,7 @@ def initialTextToList(file_path):
 
 
 def get_Id(depeche):
-    regex = r'<doc id="(.+)"(.+)>'
+    regex = r'<doc id="(.+)" (.*)>'
     m = re.match(regex, depeche)
     return m.group(1)
 def get_Topic(depeche):
@@ -49,13 +53,14 @@ def get_Topic(depeche):
     m = re.match(regex, depeche)
     if m:
         return m.group(2)
-    return "?"
+    return ""
 
 
 class Depeche(object):
     def __init__(self, depeche):
         self.occurences_dict = getLemmeDico()
         self.id = get_Id(depeche)
+        self.__name__=self.id
         self.topic = get_Topic(depeche).replace(',', '').replace(' ', '_')
         text = ""
         try:
@@ -78,11 +83,15 @@ class Depeche(object):
                 break
             for key in self.occurences_dict:
                 self.occurences_dict[key] = self.occurences_dict[key]*1000/total
+    def clearDictOfTerms(self):
+        self.occurences_dict = {}
 
 if __name__=='__main__':
-    for d in initialTextToList(CURRENT_PATH+'/../TP_MNTAL2013/corpus_depeche.txt')[0:2]:
+    for d in initialTextToList(CURRENT_PATH+'/../TP_MNTAL2013/corpus_depeche.txt')[0:3]:
         dep = Depeche(d)
         topic = dep.topic
+        print topic
+        print d[0:60]
         id = dep.id
     print get_Topic('<doc id="id" topic="coucou">')
     print get_Topic('<doc id="id">')
