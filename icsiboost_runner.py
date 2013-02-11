@@ -69,10 +69,14 @@ def get_class_index():
     class_output = get_result_output()
     response_list = class_output.split('\n')
     for line in response_list:
-        l = line.split(" ")
+        output_length = len(line.split(" "))
+        output_length = output_length/2
+        if output_length == 0:
+            break
+        l = line.split(" ")[output_length:output_length*2]
         has_class = False
         for i in range(len(l)):
-            if l[i] == "1":
+            if float(l[i]) >= 0:
                 index_list.append(i)
                 has_class = True
         if not has_class:
@@ -85,7 +89,7 @@ def result_classes(dico,class_list):
     true_class_list = []
     estimation_list = []
     class_index = get_class_index()
-
+    print class_index
     index = 0
     for pk in dico:
         id_list.append(pk)

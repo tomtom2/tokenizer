@@ -15,6 +15,7 @@ def timeout(seconds=120, error_message=os.strerror(errno.ETIME)):
     def decorator(func):
         def _handle_timeout(signum, frame):
             print "timeout!\n"
+            return ""
             
 
         def wrapper(depeche):
