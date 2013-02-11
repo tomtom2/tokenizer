@@ -30,9 +30,11 @@ class Command(object):
             my_stdout_file = open("output.txt", "w")
             stdout_lines = []
             stderr_lines = []
+            log_file = open("LOG.txt", "w")
             while True:
                 self.process2.poll()
                 line = self.process2.stdout.readline()
+                log_file.write(line)
                 print line.replace("\n", "")
                 my_stdout_file.write(line)
                 try:
@@ -53,6 +55,7 @@ class Command(object):
                 if (line == "" and eline == "" and
                     self.process2.returncode != None):
                     break
+            log_file.close()
             my_stdout_file.close()
 
             os.chdir(CURRENT_PATH)

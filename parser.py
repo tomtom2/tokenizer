@@ -8,7 +8,7 @@ LEMME_DB_PATH = CURRENT_PATH+'/../TP_MNTAL2013/lex80k.fr.utf8'
 LETTER_DB_PATH = CURRENT_PATH+'/../TP_MNTAL2013/lex_letter.txt.utf8'
 
 occurenceLimit = 300
-DBIgnoredClasses = ['ADV', 'YPFAI']
+DBIgnoredClasses = ['ADV']
 
 def buildLettersList():
     my_list = [" ".encode("utf8")]
@@ -24,9 +24,9 @@ LETTERS_LIST = buildLettersList()
 def classIsOK(word_class):
     if word_class in DBIgnoredClasses:
         return False
-    if word_class.startswith("V") or word_class.startswith("N") or word_class.startswith("X"):
+    if word_class.startswith("V") or word_class.startswith("N") or word_class.startswith("X")  or word_class.startswith("Y"):
         return True
-    return True
+    return False
 
 def freqIsOK(word_occurence):
     return float(word_occurence)<occurenceLimit
@@ -56,6 +56,18 @@ def getLemmeDico():
     while '|' in my_lemme_dico:
         del my_lemme_dico['|']
     return my_lemme_dico
+
+def get_classes_dico():
+    my_class_dico = {}
+    my_file = open(LEMME_DB_PATH, 'r')
+    for line in my_file:
+        line = line.split(" ")
+        classe = line[1].replace('\n', '')
+        my_class_dico[classe] = 0
+    my_file.close()
+    while '|' in my_class_dico:
+        del my_class_dico['|']
+    return my_class_dico
 
 
 def initialTextToList(file_path):
@@ -108,15 +120,23 @@ class Depeche(object):
 
     def setUpDictOfTerms(self, table, dico, ignoredClasses, probaLimit):
         self.occurences_dict = getLemmeDico()
+        occurence_classes = get_classes_dico()
+        for i in range(len(table)):
+            if table[i][1] in occurence_classes:
+                occurence_classes[table[i][1]] = occurence_classes[table[i][1]] + 1
+
         for i in range(len(table)):
             total = 0
             if dico[table[i][0]] in self.occurences_dict and table[i][0] in dico and not table[i][1] in ignoredClasses and float(table[i][2])<probaLimit:
-                self.occurences_dict[dico[table[i][0]]] += 1
+                self.occurences_dict[dico[table[i][0]]] = 1
                 total += 1
             if total == 0:
                 break
-            for key in self.occurences_dict:
-                self.occurences_dict[key] = self.occurences_dict[key]*1000/total
+        for cl in occurence_classes:
+            self.occurences_dict[cl] = occurence_classes[cl]
+        for key in self.occurences_dict:
+            self.occurences_dict[key] = self.occurences_dict[key]*1000.0/max(total, 1)
+
     def clearDictOfTerms(self):
         self.occurences_dict = {}
 

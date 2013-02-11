@@ -19,8 +19,8 @@ test_file_path = CURRENT_PATH+'/../TP_MNTAL2013/corpus_depeche.txt'
 # train_file_path = CURRENT_PATH+'/../TP_MNTAL2013/material/train.txt'
 # test_file_path = CURRENT_PATH+'/../TP_MNTAL2013/material/train.txt'
 
-STEP_train = 15#30
-STEP_test = 30#70
+STEP_train = 50#30
+STEP_test = 50#70
 TIME_LIMIT = 90
 force_rewrite = True
 
@@ -33,6 +33,10 @@ for key in parser.getLemmeDico():
     lemmes.append(key)
 max_length_dict = 100000
 max_length_dict = min(max_length_dict, len(lemmes))
+
+classesFromLex80 = []
+for cl in parser.get_classes_dico():
+    classesFromLex80.append(cl)
 
 def mot_class_proba_liste():
     mots=[]
@@ -80,6 +84,8 @@ def setUpNames():
     myFile.write(header)
     for word in lemmes[0:max_length_dict]:
         myFile.write(word+': continuous.\n')
+    for cl in classesFromLex80:
+        myFile.write(cl+': continuous.\n')
     myFile.close()
 
 
@@ -102,6 +108,11 @@ def write_data_row(depeche):
     for lemme in lemmes[0:max_length_dict]:
         if lemme in depeche.occurences_dict:
             line_tmp = line_tmp + str(depeche.occurences_dict[lemme])+', '
+        else:
+            line_tmp = line_tmp + str(0)+', '
+    for classe in classesFromLex80:
+        if classe in depeche.occurences_dict:
+            line_tmp = line_tmp + str(depeche.occurences_dict[classe])+', '
         else:
             line_tmp = line_tmp + str(0)+', '
     line_tmp += depeche.topic+'.\n'
@@ -144,6 +155,11 @@ def write_test_row(depeche):
             line = line + str(depeche.occurences_dict[lemme])+', '
         else:
             line = line + str(0)+', '
+    for classe in classesFromLex80:
+        if classe in depeche.occurences_dict:
+            line = line + str(depeche.occurences_dict[classe])+', '
+        else:
+            line_tmp = line_tmp + str(0)+', '
     if depeche.topic in depech_classes:
         print depeche.topic
         line += depeche.topic
